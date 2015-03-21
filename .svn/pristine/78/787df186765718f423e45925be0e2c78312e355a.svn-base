@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link href="/UserApplication/css/bootstrap.min.css" rel="stylesheet">
+        <title>User Overview</title>
+    </head>
+    <body>
+        <div>
+        <div style="width: 1160px; font-size: 20px;margin: auto; margin-top: 100px; margin-left: -1200;">
+        <div>
+        <p><a href = "index.php?action=RequestEditUser" style="float:left">Change settings</a><a href = "index.php?action=Logout" style="float:right">Log Out</a></p>
+        </div>
+         <?php for($i = 0; $i < count($this->_messages); $i++){ ?>
+                <p><?php echo $this->_messages[$i]?></p>
+            <?php } ?>
+                <table class = "table-striped">
+                    <tr style="margin-bottom: 10px;">
+                    <th style="padding-right: 220px;">user id</th>
+                    <th style="padding-right: 220px;">user name</th>
+                    <th style="padding-right: 220px;">Value</th>
+                    <th style="padding-right: 220px;"></th>
+                </tr>
+            <?php for($i = 0; $i < count($this->_users); $i++){ ?>
+            <tr>
+                <td style="padding-right: 220px;"><?php echo $this->_users[$i]->getUserID(); ?></td>
+                <td style="padding-right: 220px;"><?php echo $this->_users[$i]->getUsername(); ?></td>
+                <td style="padding-right: 220px;"><?php echo $this->_users[$i]->getValue(); ?></td>
+                <td><a href = "index.php?action=Remove&id=<?php echo $this->_users[$i]->getUserID();?>">remove</a></td>
+            </tr>
+            <?php } ?>
+        </table>
+                <p><a href = "index.php?action=RequestRegisterUser">add user</a></p>
+        </div>
+        </div>
+    </body>
+</html>

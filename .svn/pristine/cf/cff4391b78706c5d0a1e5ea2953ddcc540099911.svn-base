@@ -1,0 +1,16 @@
+<?php
+
+
+require_once 'Database/InMemoryDatabase.php';
+
+
+class DBFactory {
+    function createDB($dbType){
+        if($dbType == 'memory'){
+            return new InMemoryDatabase();
+        }
+        else{
+            throw new Exception("invalid db type");
+        }
+    }
+}

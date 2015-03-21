@@ -1,0 +1,115 @@
+<?php
+
+require_once 'Service/DataManager.php';
+class Controller {
+    private $_service;
+    private $_users;
+    private $_messages;
+    private $_currentUser;
+  
+    public function __construct(){
+        session_start();
+        if($this->getSession('service') != NULL){
+            $this->_service = $this->getSession('service');
+        }
+        else {
+            $this->_service = new DataManager('inMemory');
+            $this->createSession('service', $this->_service);
+        }
+     
+     }
+    
+    public function processRequest(){
+        $nextpage = 'index.php';
+        if(isset($_GET['action'])){
+            $action = $_GET['action'];
+        }
+        if($action == 'Login'){
+            $this->login($_POST['username'],$_POST['password']);
+            $nextpage = $this->toOverview();
+        }
+        if($action == 'RequestRegisterUser'){
+            $nextpage = 'CreateUserForm.php';
+        }
+        if($action == 'Register'){
+            $nextpage = $this->addUser($_POST['username'],$_POST['password']);
+        }
+        if($action == 'Remove'){
+            $this->remove($_GET['id']);
+            $nextpage = $this->toOverview();
+        }
+        if($action == 'RequestEditUser'){
+            $nextpage = 'EditUserForm.php';
+        }
+        if($action == 'Edit'){
+           $this->editUser($_POST['id'],$_POST['username'],$_POST['password']);
+           $nextpage = $this->toOverview();
+        }
+        if($action == 'Logout'){
+            $this->logout();
+            $nextpage = 'index.php';
+        }
+        require_once('View/'.$nextpage);
+    }
+    
+    public function login($username,$password){
+        $this->logout();
+        $user = $this->_service->getUser($username, $password);
+        if($user != null){
+            $this->addMessage('Signed in');
+            $this->createSession('user',$user);
+        }
+        $this->addMessage('failed to sign in');
+    }
+    
+    public function logout(){
+        $this->removeSession('user');
+    }
+    
+    public function remove($userID){
+        if($this->signedIn()){
+            $this->_service->removeUser($userID);
+        }
+    }
+    
+    public function editUser($userID,$username,$password) {
+        $this->_service->updateUser($userID,$username,$password);
+    }
+
+    public function toOverview(){
+        if($this->signedIn()){
+            $this->_users = $this->_service->getUsers();
+            return 'Overview.php';
+        }
+        return 'index.php';
+    }
+    
+    public function signedIn(){
+        return $this->getSession('user');
+    }
+    
+    private function addUser($username,$password){
+        $this->addMessage('user succesfully added');
+        $this->_service->addUser($username, $password);
+        if(!$this->signedIn()){
+            $this->login($username, $password);
+        }
+        return $this->toOverview();
+    }
+    
+    public function addMessage($message){
+        $this->_messages = array_merge ($this->_messages, $message);
+    }
+    
+    public function createSession($sessionname,$value){
+        $_SESSION[$sessionname] = $value;
+    }
+    
+    public function getSession($sessionname){
+        return $_SESSION[$sessionname];
+    }
+    
+    public function removeSession($sessionname){
+        unset($_SESSION['user']);
+    }
+}
